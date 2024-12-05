@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubbles App - Testing</title>
+    <style>
+        /* Styling for body to center canvas and buttons */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            flex-direction: column;
+        }
+
+        /* Center content in container */
+        .container {
+            text-align: center;
+        }
+
+        /* Style the canvas */
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Style the buttons */
+        button {
+            margin-top: 10px;
+            padding: 5px 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Heading for the app -->
+    <h1>Bubbles App - Testing</h1>
+    
+    <!-- Container to center canvas and buttons -->
+    <div class="container">
+        <canvas id="canvas" width="600" height="400"></canvas>
+        <button id="hitButton">Hit</button>
+        <button id="resetButton">Reset</button>
+    </div>
+
+    <script>
+        // Select the canvas and context for drawing
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Define properties for the circle and arrow
+        const circle = { x: 100, y: canvas.height / 2, radius: 30, color: getRandomColor() };
+        const arrow = { x: canvas.width - 80, y: canvas.height / 2, width: 40, height: 10, speed: 5, moving: false, hit: false };
+
+        // Function to generate a random hex color
+        function getRandomColor() {
+            return '#' + Math.floor(Math.random() * 16777215).toString(16);
+        }
+
+        // Function to draw the circle on canvas
+        function drawCircle() {
+            ctx.fillStyle = circle.color;
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Function to draw the arrow on canvas
+        function drawArrow() {
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.moveTo(arrow.x, arrow.y);
+            ctx.lineTo(arrow.x - arrow.width, arrow.y - arrow.height / 2);
+            ctx.lineTo(arrow.x - arrow.width, arrow.y + arrow.height / 2);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Function to clear canvas and redraw circle and arrow
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCircle();
+            drawArrow();
+        }
+
+        // Update function to move arrow and check collision
+        function update() {
+            if (arrow.moving && !arrow.hit) {
+                arrow.x -= arrow.speed;
+                if (arrow.x - circle.x <= circle.radius + arrow.width) {  // Detect collision and stop
+                    circle.color = getRandomColor();
+                    arrow.moving = false;
+                    arrow.hit = true;
+                }
+            }
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        // Event listener for the Hit button to start arrow movement
+        document.getElementById('hitButton').addEventListener('click', () => {
+            if (!arrow.hit) arrow.moving = true;
+        });
+
+        // Event listener for the Reset button to reset arrow and circle color
+        document.getElementById('resetButton').addEventListener('click', () => {
+            arrow.x = canvas.width - 80;
+            circle.color = getRandomColor();
+            arrow.moving = false;
+            arrow.hit = false;
+            draw();
+        });
+
+        // Initial draw and start update loop
+        draw();
+        update();
+    </script>
+</body>
+</html>
